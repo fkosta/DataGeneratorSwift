@@ -23,43 +23,26 @@ struct Generate:ParsableCommand{
     
     @Argument(help: "The file name with locations")
     private var locationsFileName: String
+    
+    @Argument(help: "CSV file with data generator parameters")
+    private var configFileName: String
 
-    @Option(name:.long, help:"Use current location for driver")
-    private var useCurrent:Bool
-    
-    @Option(name:.long, help:"Number of tyre types used in tests")
-    private var tyreTypesNum:Int
-    
-    @Option(name:.long, help:"Parts stop number")
-    private var partsStops:Int
-
-    @Option(name:.long, help:"Upload service confirmation images in tests")
-    private var uploadServiceImages:Bool
-
-    @Option(name:.long, help:"Update driver profile images in tests")
-    private var updateDrvImages:Bool
-    
-    @Option(name:.long, help:"Update mechanic profile images in tests")
-    private var updateMechImages:Bool
-    
-    @Option(name:.long, help:"Update driver location before tests")
-    private var updateDrvLoc: Bool
-    
-    @Option(name:.long, help:"Update mechanic location before tests")
-    private var updateMechLoc: Bool
-        
     func run(){
         var testDataBlock = TestDataBlock()
         var driverTestData = DriverData()
         var mechanicTestData = MechanicData()
         
-        if (1...12).contains(tyreTypesNum){
-        
+        do{
+            let configFile:CSV = try CSV<Named>(url: URL(fileURLWithPath: configFileName))
+            let partsStops = configFile.rows[0]["partsStops"]
+            let tireTypesNum = Int(configFile.rows[0]["tireTypesNum"]!)!
+            
             do{
                 let locationsFile:CSV = try CSV<Named>(url: URL(fileURLWithPath: locationsFileName))
             
                 do{
                     let accountsFile:CSV = try CSV<Named>(url: URL(fileURLWithPath: accountsFileName))
+
                     var mechAccountsArray = [String]()
                     var drvAccountsArray = [String]()
                 
@@ -87,7 +70,7 @@ struct Generate:ParsableCommand{
                     driverTestData.notifications = Bool.random()
                     driverTestData.messages = Bool.random()
                     driverTestData.calls = Bool.random()
-                    driverTestData.wheels = testDataBlock.getWheels(numWheels: 3)
+                    driverTestData.wheels = testDataBlock.getWheels(numWheels: tireTypesNum)
                     driverTestData.tireSize = testDataBlock.getTireSize()
                     driverTestData.tireBrand = testDataBlock.getTireBrand()
                     driverTestData.retreaded = Bool.random()
@@ -97,7 +80,7 @@ struct Generate:ParsableCommand{
                     driverTestData.model = carMakeYearModel[2]
             
                     var randInd = Int.random(in: 0..<locNum)
-                    if !useCurrent{
+                    if !Bool(configFile.rows[0]["useCurrent"]!)!{
                         driverTestData.location = locationsFile.rows[randInd]["location"]!
                         randInd = Int.random(in: 0..<locNum)
                     }
@@ -111,9 +94,11 @@ struct Generate:ParsableCommand{
                     randInd = Int.random(in: 0..<locNum)
                     driverTestData.destination = locationsFile.rows[randInd]["location"]!
 
-                    driverTestData.updateLocationBeforeTests = updateDrvLoc
-                    driverTestData.updateProfilePicture = updateDrvImages
+                    driverTestData.updateLocationBeforeTests = Bool(configFile.rows[0]["updateDrvLoc"]!)!
+                    driverTestData.updateProfilePicture = Bool(configFile.rows[0]["updateDrvImages"]!)!
                     driverTestData.removeBeforeAdd = Bool.random()
+                    driverTestData.uploadTiresImages = Bool(configFile.rows[0]["updateTiresImages"]!)!
+                    driverTestData.uploadMobileRequestImage = Bool(configFile.rows[0]["uploadMobileRequestImage"]!)!
             
                     mechanicTestData.phoneNumber = testDataBlock.getPhoneNumber(userType: "mechanic") ?? "5555553333"
                     
@@ -125,14 +110,14 @@ struct Generate:ParsableCommand{
                     mechanicTestData.notifications = Bool.random()
                     mechanicTestData.messages = Bool.random()
                     mechanicTestData.calls = Bool.random()
-                    mechanicTestData.updateProfilePicture = updateMechImages
+                    mechanicTestData.updateProfilePicture = Bool(configFile.rows[0]["updateMechImages"]!)!
 
                     randInd = Int.random(in: 0..<locNum)
 
                     mechanicTestData.locationLatitude = roundDecimal(Decimal(Double(locationsFile.rows[randInd]["latitude"]!)!),4)
                     mechanicTestData.locationLongitude = roundDecimal(Decimal(Double(locationsFile.rows[randInd]["longitude"]!)!),4)
 
-                    var pStops = partsStops
+                    var pStops = Int(partsStops!)!
                     if pStops > 0{
                         var partStopsLocations:[String] = []
                         while pStops > 0{
@@ -142,14 +127,18 @@ struct Generate:ParsableCommand{
                         }
                         mechanicTestData.partsStop = partStopsLocations
                     }
-                    mechanicTestData.updateLocationBeforeTests = updateMechLoc
+
+                    mechanicTestData.updateLocationBeforeTests = Bool(configFile.rows[0]["updateMechLoc"]!)!
 
                     mechanicTestData.tirePrices = [getRandomFormattedDecimal(in: 1...20.0, scale: 2),getRandomFormattedDecimal(in: 1...20.0, scale: 2),getRandomFormattedDecimal(in: 1...20.0, scale: 2)]
                     mechanicTestData.mileageRate = getRandomFormattedDecimal(in: 1...20.0, scale: 2)
                     mechanicTestData.loadedMileageRate = getRandomFormattedDecimal(in: 1...20.0, scale: 2)
-                    mechanicTestData.prepTime = getRandomFormattedDecimal(in: 1...20.0, scale: 2)
+                    mechanicTestData.prepTime = Int.random(in: 1...20)
                     mechanicTestData.hockFee = getRandomFormattedDecimal(in: 1...20.0, scale: 2)
-                    mechanicTestData.uploadServiceImages = uploadServiceImages
+                    mechanicTestData.uploadServiceImages = Bool(configFile.rows[0]["uploadServiceImages"]!)!
+                    mechanicTestData.mobileServiceLevel = Int.random(in: 0...1)
+                    mechanicTestData.diagnosticFeePartsCost = getRandomFormattedDecimal(in: 1...20.0, scale: 2)
+                    mechanicTestData.laborCost = getRandomFormattedDecimal(in: 1...20.0, scale: 2)
             
                     writeJSONFile(inputStruct: driverTestData, fname:driverDataFileName)
                     writeJSONFile(inputStruct: mechanicTestData, fname: mechanicDataFileName)
@@ -164,8 +153,8 @@ struct Generate:ParsableCommand{
                 print("locations.csv file is not found")
             }
         }
-        else{
-            print("The number of tyres for the replacement has to be between 1 and 12!")
+        catch{
+            print("Configuration file is not found")
         }
     }
     

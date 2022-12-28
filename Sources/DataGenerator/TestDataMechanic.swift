@@ -24,12 +24,15 @@ struct MechanicData: Codable{
     var shopAddress = ""
     var shopName = ""
     var tirePrices: Array<Decimal> = [0.0,0.0,0.0]
-    var prepTime:Decimal = 0.0
+    var prepTime:Int = 0
     var mileageRate: Decimal = 0.0
     var loadedMileageRate: Decimal = 0.0
     var hockFee: Decimal = 0.0
     var updateLocationBeforeTests = true
     var uploadServiceImages = true
+    var mobileServiceLevel = 0
+    var diagnosticFeePartsCost:Decimal = 0.0
+    var laborCost:Decimal = 0.0
 
     init(){}
 }

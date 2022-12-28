@@ -76,7 +76,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "generate DriverTestData.json MechanicTestData.json /Users/sqa/temp/accounts.csv /Users/sqa/temp/locations.csv --use-current false --tyre-types-num 3 --parts-stops 2 --upload-service-images true --update-drv-images true --update-mech-images true --update-drv-loc true --update-mech-loc true"
+            argument = "generate DriverTestData.json MechanicTestData.json /Users/sqa/temp/accounts.csv /Users/sqa/temp/locations.csv /Users/sqa/temp/configuration.csv"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

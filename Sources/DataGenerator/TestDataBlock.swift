@@ -13,7 +13,7 @@ struct TestDataBlock{
     private var driverAccounts: Array<String> = []
     private let firstName: Array<String> = ["Joe","Carl","Ivan","Pete","Mike","Elizabeth","Paul","George","John","Lewis"]
     private let lastName: Array<String> = ["Doe","Marx","Terrible","First","Second","Taylor","Richard","Bush","Lucas","Carrol"]
-    private let tireTypes: Array<String> = ["steeringLeft","steeringRight","driveLeftFirst","driveRightFirst","driveLeftSecond","driveRightSecond","trailerLeftFront","trailerRightFront","trailerLeftBack","trailerRightBack"]
+    private let tireTypes: Array<String> = ["steeringLeft","steeringRight","driveLeftFirst","driveLeftFirstI","driveRightFirst","driveRightFirstI","driveLeftSecond","driveLeftSecondI","driveRightSecond","driveRightSecondI","trailerLeftFront","trailerLeftFrontI","trailerRightFront","trailerRightFrontI","trailerLeftBack","trailerLeftBackI","trailerRightBack","trailerRightBackI"]
     private let tireSizes: Array<String> = ["11R22.5","11R24.5","255/70R22.5","285/75R24.5","295/75R22.5","10R22.5","225/70R19.5","245/70R19.5","275/80R22.5","285/70R19.5","445/50R22.5","455/55R22.5"]
 
     private let tireBrands: Array<String> = ["BridgeStone","Cooper","Continental","BFGoodrich","Goodyear","Michelin","Pirelli","Toyo","Yokohama"]
@@ -80,7 +80,7 @@ struct TestDataBlock{
                 wheelsArray.remove(at: Int(randInd))
             }
         }
-        return wheelsArray
+        return wheelsArray.sorted()
     }
     
     func getWheel() -> String{

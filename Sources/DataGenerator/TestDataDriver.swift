@@ -30,6 +30,8 @@ struct DriverData: Codable{
     var locationLongitude: Decimal = 0.0
     var updateLocationBeforeTests = true
     var removeBeforeAdd = true
+    var uploadTiresImages = false
+    var uploadMobileRequestImage = false
     
     init(){}
 }
